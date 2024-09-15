@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\User\UserHomeController;
+use App\Http\Controllers\User\UserMenuController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -14,20 +16,19 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('auth-login');
-Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('auth-register');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-Route::get('/menu', function () {
-    return view('landing.menu');
-})->name('menu');
+Route::get('/', [UserHomeController::class, 'index']);
+
+Route::get('/menu', [UserMenuController::class, 'index'])->name('menu');
 Route::get('/keranjang', function () {
     return view('landing.keranjang');
 })->name('keranjang');
 Route::get('/riwayat', function () {
     return view('landing.riwayat');
 })->name('riwayat');
+
+//Auth Routes
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('auth-login');
+Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('auth-register');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

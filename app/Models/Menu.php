@@ -16,4 +16,12 @@ class Menu extends Model
     {
         return $this->belongsTo(Kategori::class);
     }
+    public function komentar()
+    {
+        return $this->hasMany(Komentar::class);
+    }
+    public function jenisMenu()
+    {
+        return $this->hasMany(JenisMenu::class);
+    }
 }
