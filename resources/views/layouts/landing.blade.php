@@ -77,6 +77,79 @@
             </div>
         </div>
     </footer>
+    <script>
+        document.querySelectorAll('.varian-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.varian-options').querySelectorAll('.varian-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        let selectedVariant = {
+            jenis: '',
+            harga: 0
+        };
+
+        function selectVariant(button, menuId, menuNama, varianJenis, varianHarga) {
+            selectedVariant = {
+                jenis: varianJenis,
+                harga: varianHarga
+            };
+
+            // Hapus kelas 'active' dari semua tombol
+            button.closest('.varian-options').querySelectorAll('.varian-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Tambahkan kelas 'active' ke tombol yang dipilih
+            button.classList.add('active');
+        }
+
+        function addToCart(menuId, menuNama) {
+            if (selectedVariant.jenis === '') {
+                alert('Silakan pilih varian terlebih dahulu!');
+                return;
+            }
+
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let item = cart.find(i => i.id === menuId && i.varian === selectedVariant.jenis);
+
+            if (item) {
+                item.quantity += 1;
+            } else {
+                cart.push({
+                    id: menuId,
+                    nama: menuNama,
+                    varian: selectedVariant.jenis,
+                    harga: selectedVariant.harga,
+                    quantity: 1
+                });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert('Item berhasil ditambahkan ke keranjang!');
+            updateCartBadge();
+
+            // Reset selectedVariant setelah menambahkan ke keranjang
+            selectedVariant = {
+                jenis: '',
+                harga: 0
+            };
+        }
+
+        function updateCartBadge() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            let cartBadge = document.getElementById('cartBadge');
+            if (cartBadge) {
+                cartBadge.textContent = totalItems;
+            }
+        }
+
+        // Panggil fungsi ini saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', updateCartBadge);
+    </script>
 </body>
 
 </html>

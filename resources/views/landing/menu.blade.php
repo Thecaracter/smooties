@@ -1,123 +1,6 @@
 @extends('layouts.landing')
+
 @section('content')
-    <style>
-        .search-filter-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .search-input,
-        .category-dropdown-btn {
-            padding: 8px 15px;
-            border: 1px solid #007bff;
-            border-radius: 20px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .search-input {
-            width: 200px;
-        }
-
-        .search-input:focus {
-            outline: none;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-        }
-
-        .category-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .category-dropdown-btn {
-            background-color: white;
-            color: #007bff;
-            cursor: pointer;
-            min-width: 150px;
-            text-align: left;
-        }
-
-        .category-dropdown-btn:hover,
-        .category-dropdown-btn:focus {
-            background-color: #f0f8ff;
-        }
-
-        .category-dropdown-btn::after {
-            content: '\25BC';
-            float: right;
-        }
-
-        .category-dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #fff;
-            min-width: 150px;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
-            z-index: 1;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .category-dropdown-content button {
-            color: black;
-            padding: 8px 15px;
-            text-decoration: none;
-            display: block;
-            width: 100%;
-            text-align: left;
-            border: none;
-            background-color: transparent;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .category-dropdown-content button:hover {
-            background-color: #f0f8ff;
-        }
-
-        .show {
-            display: block;
-        }
-
-        .card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .category-title {
-            font-size: 20px;
-            color: #007bff;
-            margin-bottom: 15px;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
-
     <section id="menu" class="py-5 bg-light">
         <div class="container">
             <h2 class="text-center section-title mb-4">Semua Menu</h2>
@@ -182,9 +65,10 @@
                                     <h6 class="fw-bold mt-3">Pilih Varian:</h6>
                                     <div class="varian-options">
                                         @foreach ($menu->jenisMenu as $jenis)
-                                            <button
-                                                class="varian-btn {{ $loop->first ? 'active' : '' }}">{{ $jenis->jenis }}
-                                                - Rp {{ number_format($jenis->harga, 0, ',', '.') }}</button>
+                                            <button class="varian-btn {{ $loop->first ? 'active' : '' }}"
+                                                onclick="selectVariant(this, '{{ $menu->id }}', '{{ $menu->nama }}', '{{ $jenis->jenis }}', {{ $jenis->harga }})">
+                                                {{ $jenis->jenis }} - Rp {{ number_format($jenis->harga, 0, ',', '.') }}
+                                            </button>
                                         @endforeach
                                     </div>
                                     <h6 class="fw-bold mt-3">Komentar Terbaru:</h6>
@@ -214,7 +98,10 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                            <button type="button" class="btn btn-primary">Tambah ke Keranjang</button>
+                            <button type="button" class="btn btn-primary"
+                                onclick="addToCart('{{ $menu->id }}', '{{ $menu->nama }}')">
+                                Tambah ke Keranjang
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -289,6 +176,70 @@
 
             // Initial filter
             filterMenuItems();
+
+            // Initial update of cart badge
+            updateCartBadge();
         });
+
+        let selectedVariant = {
+            jenis: '',
+            harga: 0
+        };
+
+        function selectVariant(button, menuId, menuNama, varianJenis, varianHarga) {
+            selectedVariant = {
+                jenis: varianJenis,
+                harga: varianHarga
+            };
+
+            // Hapus kelas 'active' dari semua tombol dalam modal yang sama
+            button.closest('.varian-options').querySelectorAll('.varian-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Tambahkan kelas 'active' ke tombol yang dipilih
+            button.classList.add('active');
+        }
+
+        function addToCart(menuId, menuNama) {
+            if (selectedVariant.jenis === '') {
+                alert('Silakan pilih varian terlebih dahulu!');
+                return;
+            }
+
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let item = cart.find(i => i.id === menuId && i.varian === selectedVariant.jenis);
+
+            if (item) {
+                item.quantity += 1;
+            } else {
+                cart.push({
+                    id: menuId,
+                    nama: menuNama,
+                    varian: selectedVariant.jenis,
+                    harga: selectedVariant.harga,
+                    quantity: 1
+                });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert('Item berhasil ditambahkan ke keranjang!');
+            updateCartBadge();
+
+            // Reset selectedVariant setelah menambahkan ke keranjang
+            selectedVariant = {
+                jenis: '',
+                harga: 0
+            };
+        }
+
+        function updateCartBadge() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            let cartBadge = document.getElementById('cartBadge');
+            if (cartBadge) {
+                cartBadge.textContent = totalItems;
+            }
+        }
     </script>
 @endsection

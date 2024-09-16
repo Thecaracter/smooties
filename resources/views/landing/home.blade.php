@@ -23,12 +23,12 @@
             <div class="row align-items-center">
                 <div class="col-lg-6 mb-4 mb-lg-0">
                     <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='300' viewBox='0 0 500 300'%3E%3Crect width='500' height='300' fill='%23e8eaf6'/%3E%3Ccircle cx='150' cy='150' r='100' fill='%233949ab' fill-opacity='0.8'/%3E%3Ccircle cx='350' cy='150' r='100' fill='%231a237e' fill-opacity='0.9'/%3E%3Cpath d='M150 150 L 350 150' stroke='white' stroke-width='8' fill='none'/%3E%3C/svg%3E"
-                        alt="About Smoothie Haven" class="img-fluid about-image">
+                        alt="About Smootie by Vie" class="img-fluid about-image">
                 </div>
                 <div class="col-lg-6">
-                    <h3>Selamat Datang di Smoothie Haven</h3>
+                    <h3>Selamat Datang di Smootie by Vie</h3>
                     <p>Kami adalah perusahaan yang berdedikasi untuk menyajikan smoothie berkualitas tinggi dengan
-                        bahan-bahan segar dan alami. Didirikan pada tahun 2020, Smoothie Haven telah menjadi tujuan
+                        bahan-bahan segar dan alami. Didirikan pada tahun 2020, Smootie by Vie telah menjadi tujuan
                         utama bagi pecinta smoothie di seluruh kota.</p>
                     <p>Misi kami adalah mempromosikan gaya hidup sehat melalui minuman lezat dan bergizi. Setiap
                         smoothie kami dibuat dengan cinta dan perhatian khusus terhadap detail untuk memastikan
@@ -81,9 +81,11 @@
                                     <h6 class="fw-bold mt-3">Pilih Varian:</h6>
                                     <div class="varian-options">
                                         @foreach ($menu->jenisMenu as $jenis)
-                                            <button
-                                                class="varian-btn {{ $loop->first ? 'active' : '' }}">{{ $jenis->jenis }}
-                                                - Rp {{ number_format($jenis->harga, 0, ',', '.') }}</button>
+                                            <button class="varian-btn {{ $loop->first ? 'active' : '' }}"
+                                                data-harga="{{ $jenis->harga }}"
+                                                onclick="selectVariant(this, '{{ $menu->id }}', '{{ $menu->nama }}', '{{ $jenis->jenis }}', {{ $jenis->harga }})">
+                                                {{ $jenis->jenis }} - Rp {{ number_format($jenis->harga, 0, ',', '.') }}
+                                            </button>
                                         @endforeach
                                     </div>
                                     <h6 class="fw-bold mt-3">Komentar Terbaru:</h6>
@@ -113,22 +115,14 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                            <button type="button" class="btn btn-primary">Tambah ke Keranjang</button>
+                            <button type="button" class="btn btn-primary"
+                                onclick="addToCart('{{ $menu->id }}', '{{ $menu->nama }}')">
+                                Tambah ke Keranjang
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         @endforeach
     </section>
-
-    <script>
-        document.querySelectorAll('.varian-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                this.closest('.varian-options').querySelectorAll('.varian-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-    </script>
 @endsection
