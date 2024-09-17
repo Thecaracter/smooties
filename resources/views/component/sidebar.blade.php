@@ -34,7 +34,13 @@
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
                     </span>
-                    <h4 class="text-section">Menu</h4>
+                    <h4 class="text-section">Main Menu</h4>
+                </li>
+                <li class="nav-item {{ Request::path() == 'admin/user' ? 'active' : '' }}">
+                    <a href="{{ url('admin/user') }}">
+                        <i class="fas fa-user"></i>
+                        <p>User</p>
+                    </a>
                 </li>
                 <li class="nav-item {{ Request::path() == 'admin/kategori' ? 'active' : '' }}">
                     <a href="{{ url('admin/kategori') }}">
