@@ -43,10 +43,19 @@ class AuthController extends Controller
 
             if (Auth::attempt($credentials, $ingat)) {
                 $request->session()->regenerate();
-                return redirect()->intended('dashboard')->with('alert', [
-                    'type' => 'success',
-                    'message' => 'Login berhasil!'
-                ]);
+
+                // Redirect berdasarkan role pengguna
+                if ($user->role === 'admin') {
+                    return redirect()->route('dashboard')->with('alert', [
+                        'type' => 'success',
+                        'message' => 'Login berhasil sebagai Admin!'
+                    ]);
+                } else {
+                    return redirect('/')->with('alert', [
+                        'type' => 'success',
+                        'message' => 'Login berhasil sebagai User!'
+                    ]);
+                }
             }
 
             // Jika ada masalah lain saat login

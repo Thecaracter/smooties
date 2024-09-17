@@ -10,7 +10,7 @@ class Menu extends Model
     use HasFactory;
     protected $table = 'menu';
 
-    protected $fillable = ['kategori_id', 'nama', 'foto', 'aktif'];
+    protected $fillable = ['kategori_id', 'deskripsi', 'nama', 'foto', 'aktif'];
 
     public function kategori()
     {
