@@ -24,6 +24,12 @@
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+                    <h4 class="text-section">Dashboard Menu</h4>
+                </li>
                 <li class="nav-item {{ Request::path() == 'admin/dashboard' ? 'active' : '' }}">
                     <a href="{{ url('admin/dashboard') }}">
                         <i class="fas fa-home"></i>
@@ -54,10 +60,16 @@
                         <p>Menu</p>
                     </a>
                 </li>
-                <li class="nav-item {{ Request::path() == 'order' ? 'active' : '' }}">
-                    <a href="{{ url('order') }}">
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+                    <h4 class="text-section">Order Menu</h4>
+                </li>
+                <li class="nav-item {{ Request::path() == 'admin/pesanan' ? 'active' : '' }}">
+                    <a href="{{ url('admin/pesanan') }}">
                         <i class="fas fa-shopping-cart"></i>
-                        <p>Order</p>
+                        <p>Pesanan</p>
                     </a>
                 </li>
                 <li class="nav-item {{ Request::path() == 'riwayat' ? 'active' : '' }}">
@@ -72,7 +84,6 @@
 </div>
 <!-- End Sidebar -->
 
-<!-- Include jQuery and other necessary scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{{ asset('admin/assets/js/your-sidebar-script.js') }}"></script> <!-- Ensure you have your sidebar scripts included -->
 

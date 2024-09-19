@@ -122,7 +122,6 @@
 
             function filterMenuItems() {
                 const searchTerm = searchInput.value.toLowerCase();
-
                 menuItems.forEach(item => {
                     const name = item.dataset.name;
                     const category = item.dataset.category;

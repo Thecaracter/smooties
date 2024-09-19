@@ -6,6 +6,7 @@ use App\Http\Controllers\User\UserHomeController;
 use App\Http\Controllers\User\UserMenuController;
 use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminPesananController;
 use App\Http\Controllers\Admin\AdminDashboarController;
 use App\Http\Controllers\Admin\AdminKategoriController;
 use App\Http\Controllers\Admin\AdminJenisMenuController;
@@ -63,4 +64,8 @@ Route::prefix('admin')->group(function () {
     Route::post('jenis-menu/{menu_id}', [AdminJenisMenuController::class, 'store'])->name('admin.jenis-menu.store');
     Route::put('jenis-menu/{id}', [AdminJenisMenuController::class, 'update'])->name('admin.jenis-menu.update');
     Route::delete('jenis-menu/{id}', [AdminJenisMenuController::class, 'destroy'])->name('admin.jenis-menu.destroy');
+
+    //Pesanan Routes
+    Route::get('/pesanan', [AdminPesananController::class, 'index'])->name('admin.pesanan.index');
+    Route::put('/pesanan/{id}/update-status', [AdminPesananController::class, 'updateStatus'])->name('admin.pesanan.updateStatus');
 });

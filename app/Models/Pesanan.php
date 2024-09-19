@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Events\PesananUpdated;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pesanan extends Model
 {
@@ -12,9 +13,9 @@ class Pesanan extends Model
 
     protected $fillable = [
         'user_id',
+        'kode_pemesanan',
         'total_harga',
         'metode_pembayaran',
-        'status_pembayaran',
         'id_transaksi_midtrans',
         'latitude',
         'longitude',
@@ -41,4 +42,7 @@ class Pesanan extends Model
     {
         return $this->hasMany(DetailPesanan::class);
     }
+    protected $dispatchesEvents = [
+        'updated' => PesananUpdated::class,
+    ];
 }

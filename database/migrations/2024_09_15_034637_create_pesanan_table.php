@@ -12,10 +12,10 @@ return new class extends Migration {
     {
         Schema::create('pesanan', function (Blueprint $table) {
             $table->id();
+            $table->string('kode_pemesanan')->unique();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->integer('total_harga');
-            $table->string('metode_pembayaran');
-            $table->string('status_pembayaran');
+            $table->string('metode_pembayaran')->nullable();
             $table->string('id_transaksi_midtrans')->nullable();
             $table->decimal('latitude', 10, 8);
             $table->decimal('longitude', 11, 8);
