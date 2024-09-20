@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Events\JenisMenuUpdated;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class JenisMenu extends Model
 {
@@ -26,4 +27,9 @@ class JenisMenu extends Model
     {
         return $this->hasMany(DetailPesanan::class);
     }
+    protected $dispatchesEvents = [
+        'updated' => JenisMenuUpdated::class,
+        // 'created' => JenisMenuUpdated::class,
+        // 'deleted' => JenisMenuUpdated::class,
+    ];
 }

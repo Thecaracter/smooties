@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\MenuUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,4 +25,7 @@ class Menu extends Model
     {
         return $this->hasMany(JenisMenu::class);
     }
+    protected $dispatchesEvents = [
+        'updated' => MenuUpdated::class,
+    ];
 }

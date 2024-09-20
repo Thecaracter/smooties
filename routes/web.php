@@ -7,6 +7,7 @@ use App\Http\Controllers\User\UserMenuController;
 use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminPesananController;
+use App\Http\Controllers\Admin\AdminRiwayatController;
 use App\Http\Controllers\Admin\AdminDashboarController;
 use App\Http\Controllers\Admin\AdminKategoriController;
 use App\Http\Controllers\Admin\AdminJenisMenuController;
@@ -68,4 +69,7 @@ Route::prefix('admin')->group(function () {
     //Pesanan Routes
     Route::get('/pesanan', [AdminPesananController::class, 'index'])->name('admin.pesanan.index');
     Route::put('/pesanan/{id}/update-status', [AdminPesananController::class, 'updateStatus'])->name('admin.pesanan.updateStatus');
+
+    //Riwayat Routes
+    Route::get('/riwayat', [AdminRiwayatController::class, 'index'])->name('admin.riwayat.index');
 });

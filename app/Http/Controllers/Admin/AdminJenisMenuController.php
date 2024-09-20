@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\JenisMenu;
+use App\Events\JenisMenuUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-
 
 class AdminJenisMenuController extends Controller
 {
@@ -38,10 +38,6 @@ class AdminJenisMenuController extends Controller
                 'stok' => $request->stok,
             ]);
 
-            Log::info('Jenis menu berhasil ditambahkan.', [
-                'menu_id' => $menu_id,
-                'jenis' => $request->jenis,
-            ]);
 
             return redirect()->route('admin.jenis-menu.index', $menu_id)->with('success', 'Jenis menu berhasil ditambahkan.');
         } catch (\Exception $e) {
@@ -67,6 +63,8 @@ class AdminJenisMenuController extends Controller
                 'stok' => $request->stok,
             ]);
 
+            event(new JenisMenuUpdated($jenisMenu));
+
             Log::info('Jenis menu berhasil diperbarui.', [
                 'id' => $id,
                 'jenis' => $request->jenis,
@@ -87,11 +85,9 @@ class AdminJenisMenuController extends Controller
         try {
             $jenisMenu = JenisMenu::findOrFail($id);
             $menu_id = $jenisMenu->menu_id;
+
             $jenisMenu->delete();
 
-            Log::info('Jenis menu berhasil dihapus.', [
-                'id' => $id,
-            ]);
 
             return redirect()->route('admin.jenis-menu.index', $menu_id)->with('success', 'Jenis menu berhasil dihapus.');
         } catch (ModelNotFoundException $e) {

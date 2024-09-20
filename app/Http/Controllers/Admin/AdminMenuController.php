@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
+use App\Events\MenuUpdated;
 
 class AdminMenuController extends Controller
 {
@@ -30,12 +31,12 @@ class AdminMenuController extends Controller
         ]);
 
         try {
-
             $file = $request->file('foto');
             $fileName = time() . '_' . $file->getClientOriginalName();
             $filePath = public_path('fotoMenu');
 
             $file->move($filePath, $fileName);
+
             Menu::create([
                 'kategori_id' => $request->kategori_id,
                 'nama' => $request->nama,
@@ -44,13 +45,13 @@ class AdminMenuController extends Controller
                 'aktif' => $request->aktif,
             ]);
 
+
             return redirect()->route('menu.index')->with('success', 'Menu berhasil ditambahkan.');
         } catch (\Exception $e) {
             Log::error('Error uploading file: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menambahkan menu.');
         }
     }
-
     public function update(Request $request, string $id)
     {
         $request->validate([
@@ -85,6 +86,8 @@ class AdminMenuController extends Controller
             $menu->deskripsi = $request->deskripsi;
             $menu->aktif = $request->aktif;
             $menu->save(); // Save the updated menu
+
+            event(new MenuUpdated($menu));
 
             return redirect()->route('menu.index')->with('success', 'Menu berhasil diperbarui.');
         } catch (\Exception $e) {

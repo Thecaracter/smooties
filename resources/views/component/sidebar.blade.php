@@ -72,8 +72,8 @@
                         <p>Pesanan</p>
                     </a>
                 </li>
-                <li class="nav-item {{ Request::path() == 'riwayat' ? 'active' : '' }}">
-                    <a href="{{ url('riwayat') }}">
+                <li class="nav-item {{ Request::path() == 'admin/riwayat' ? 'active' : '' }}">
+                    <a href="{{ url('admin/riwayat') }}">
                         <i class="fas fa-book"></i>
                         <p>Riwayat</p>
                     </a>
