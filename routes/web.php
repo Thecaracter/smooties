@@ -6,6 +6,7 @@ use App\Http\Controllers\User\UserHomeController;
 use App\Http\Controllers\User\UserMenuController;
 use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\User\UserRiwayatController;
 use App\Http\Controllers\Admin\AdminPesananController;
 use App\Http\Controllers\Admin\AdminRiwayatController;
 use App\Http\Controllers\Admin\AdminDashboarController;
@@ -29,9 +30,7 @@ Route::get('/menu', [UserMenuController::class, 'index'])->name('menu');
 Route::get('/keranjang', function () {
     return view('landing.keranjang');
 })->name('keranjang');
-Route::get('/riwayat', function () {
-    return view('landing.riwayat');
-})->name('riwayat');
+Route::get('/riwayat', [UserRiwayatController::class, 'index'])->name('riwayat');
 
 //Auth Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -43,6 +42,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::prefix('admin')->group(function () {
     //Dashboard Routes
     Route::get('/dashboard', [AdminDashboarController::class, 'index'])->name('dashboard');
+    Route::get('dashboard/monthly-statistics', [AdminDashboarController::class, 'getMonthlyStatistics']);
+    Route::get('dashboard/yearly-statistics', [AdminDashboarController::class, 'getYearlyStatistics']);
 
     //User Routes
     Route::get('/user', [AdminUserController::class, 'index'])->name('user.index');
@@ -72,4 +73,5 @@ Route::prefix('admin')->group(function () {
 
     //Riwayat Routes
     Route::get('/riwayat', [AdminRiwayatController::class, 'index'])->name('admin.riwayat.index');
+
 });
