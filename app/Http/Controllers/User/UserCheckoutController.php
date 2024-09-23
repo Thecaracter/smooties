@@ -93,14 +93,13 @@ class UserCheckoutController extends Controller
                     'phone' => $user->phone_number ?? '',
                 ],
                 'item_details' => $itemDetails,
-                'merchant_id' => config('midtrans.merchant_id'),
             ];
 
             $snapToken = Snap::getSnapToken($params);
 
             return response()->json([
                 'snap_token' => $snapToken,
-                'redirect_url' => Snap::createTransaction($params)->redirect_url
+                'order_id' => $pesanan->kode_pemesanan
             ]);
         } catch (\Exception $e) {
             Log::error('Checkout process error: ' . $e->getMessage());
@@ -108,109 +107,100 @@ class UserCheckoutController extends Controller
         }
     }
 
-    public function notification(Request $request)
+    public function callback(Request $request)
     {
-        Log::info('Payment Notification Received', $request->all());
-
         $serverKey = config('midtrans.server_key');
-        $hashed = hash('sha512', $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
-
+        $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
         if ($hashed == $request->signature_key) {
-            Log::info('Signature key matched.');
-
             $pesanan = Pesanan::where('kode_pemesanan', $request->order_id)->first();
-
             if ($pesanan) {
-                if ($request->transaction_status == 'capture' || $request->transaction_status == 'settlement') {
-                    $pesanan->status = 'dibayar';
+                $pesanan->status = $this->mapPaymentStatus($request->transaction_status);
+                if ($pesanan->status == 'dibayar') {
                     $pesanan->waktu_dibayar = now();
-                    $pesanan->metode_pembayaran = $this->getPaymentMethod($request->payment_type);
-                    $pesanan->id_transaksi_midtrans = $request->transaction_id;
-                } elseif ($request->transaction_status == 'pending') {
-                    $pesanan->status = 'menunggu pembayaran';
-                } elseif (in_array($request->transaction_status, ['deny', 'expire', 'cancel'])) {
-                    $pesanan->status = 'dibatalkan';
+                } elseif ($pesanan->status == 'dibatalkan') {
+                    $pesanan->waktu_dibatalkan = now();
                 }
-
+                $pesanan->metode_pembayaran = $this->getPaymentMethod($request->payment_type);
+                $pesanan->id_transaksi_midtrans = $request->transaction_id;
                 $pesanan->save();
-                Log::info('Order status updated', ['order_id' => $request->order_id, 'status' => $pesanan->status]);
+
+                Log::info('Payment notification received', [
+                    'order_id' => $request->order_id,
+                    'status' => $request->transaction_status
+                ]);
 
                 return response()->json(['success' => true]);
-            } else {
-                Log::warning('Order not found', ['order_id' => $request->order_id]);
             }
-        } else {
-            Log::warning('Signature key does not match', ['provided' => $request->signature_key, 'expected' => $hashed]);
         }
-
-        return response()->json(['success' => false]);
+        return response()->json(['success' => false], 403);
     }
 
-    public function finish(Request $request)
+
+    public function checkStatus(Request $request)
     {
+        $request->validate([
+            'order_id' => 'required|exists:pesanan,kode_pemesanan',
+        ]);
+
         try {
-            $validatedData = $request->validate([
-                'order_id' => 'required|exists:pesanan,kode_pemesanan',
-            ]);
-
-            $pesanan = Pesanan::where('kode_pemesanan', $request->order_id)->first();
-
-            if (!$pesanan) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Pesanan tidak ditemukan'
-                ]);
-            }
+            $pesanan = Pesanan::where('kode_pemesanan', $request->order_id)->firstOrFail();
 
             $midtransStatus = \Midtrans\Transaction::status($request->order_id);
 
-            if ($midtransStatus->transaction_status == 'settlement' || $midtransStatus->transaction_status == 'capture') {
-                $pesanan->status = 'dibayar';
-                $pesanan->waktu_dibayar = now();
-                $pesanan->metode_pembayaran = $this->getPaymentMethod($midtransStatus->payment_type);
-                $pesanan->id_transaksi_midtrans = $midtransStatus->transaction_id;
-                $pesanan->save();
+            $transactionStatus = is_array($midtransStatus)
+                ? $midtransStatus['transaction_status']
+                : (is_object($midtransStatus) ? $midtransStatus->transaction_status : null);
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Status pesanan diperbarui menjadi "dibayar"',
-                    'redirect_url' => route('riwayat')
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Pembayaran belum selesai',
-                    'status' => $midtransStatus->transaction_status
-                ]);
+            $paymentType = is_array($midtransStatus)
+                ? ($midtransStatus['payment_type'] ?? null)
+                : (is_object($midtransStatus) ? $midtransStatus->payment_type : null);
+
+            $transactionId = is_array($midtransStatus)
+                ? ($midtransStatus['transaction_id'] ?? null)
+                : (is_object($midtransStatus) ? $midtransStatus->transaction_id : null);
+
+            if ($transactionStatus !== null) {
+                $newStatus = $this->mapPaymentStatus($transactionStatus);
+                if ($pesanan->status !== $newStatus) {
+                    $pesanan->status = $newStatus;
+                    $pesanan->waktu_dibayar = $newStatus === 'dibayar' ? now() : null;
+                    $pesanan->metode_pembayaran = $paymentType ? $this->getPaymentMethod($paymentType) : null;
+                    $pesanan->id_transaksi_midtrans = $transactionId;
+                    $pesanan->save();
+                }
             }
 
-        } catch (\Exception $e) {
-            Log::error('Error updating order status', [
-                'error' => $e->getMessage(),
-                'order_id' => $request->order_id
+            return response()->json([
+                'success' => true,
+                'order_status' => $pesanan->status,
+                'midtrans_status' => $transactionStatus,
+                'payment_method' => $pesanan->metode_pembayaran ?? 'Belum dibayar',
+                'message' => $this->getStatusMessage($pesanan->status)
             ]);
 
+        } catch (\Exception $e) {
+            Log::error('Error checking order status: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui status pesanan'
-            ]);
+                'message' => 'Gagal memeriksa status pesanan: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function getStatus($orderId)
+    private function mapPaymentStatus($midtransStatus)
     {
-        try {
-            $pesanan = Pesanan::where('kode_pemesanan', $orderId)->firstOrFail();
-            $midtransStatus = \Midtrans\Transaction::status($orderId);
-
-            return response()->json([
-                'order_status' => $pesanan->status,
-                'payment_method' => $pesanan->metode_pembayaran,
-                'midtrans_status' => $midtransStatus->transaction_status
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error getting order status: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
+        switch ($midtransStatus) {
+            case 'capture':
+            case 'settlement':
+                return 'dibayar';
+            case 'pending':
+                return 'diproses';
+            case 'deny':
+            case 'cancel':
+            case 'expire':
+                return 'dibatalkan';
+            default:
+                return 'diproses';
         }
     }
 
@@ -251,6 +241,24 @@ class UserCheckoutController extends Controller
                 return 'QRIS';
             default:
                 return 'Metode Lainnya';
+        }
+    }
+
+    private function getStatusMessage($status)
+    {
+        switch ($status) {
+            case 'dibayar':
+                return 'Pembayaran berhasil. Pesanan Anda sedang diproses.';
+            case 'diproses':
+                return 'Pesanan Anda sedang diproses. Silakan selesaikan pembayaran jika belum.';
+            case 'diantar':
+                return 'Pesanan Anda sedang dalam perjalanan.';
+            case 'selesai':
+                return 'Pesanan Anda telah selesai. Terima kasih!';
+            case 'dibatalkan':
+                return 'Pesanan Anda telah dibatalkan.';
+            default:
+                return 'Status pesanan: ' . $status;
         }
     }
 }

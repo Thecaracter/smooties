@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->string('id_transaksi_midtrans')->nullable();
             $table->decimal('latitude', 10, 8);
             $table->decimal('longitude', 11, 8);
-            $table->enum('status', ['diproses', 'dibayar', 'diantar', 'selesai'])->default('diproses');
+            $table->enum('status', ['diproses', 'dibayar', 'diantar', 'selesai', 'dibatalkan'])->default('diproses');
             $table->timestamp('waktu_diproses')->nullable();
             $table->timestamp('waktu_dibayar')->nullable();
             $table->timestamp('waktu_diantar')->nullable();

@@ -69,7 +69,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h5>Smoothie Haven</h5>
+                    <h5>Smoothie by Vie</h5>
                     <p>Menyajikan smoothie segar dan sehat untuk Anda.</p>
                 </div>
                 <div class="col-md-3">
@@ -91,10 +91,11 @@
             </div>
             <hr class="mt-4 mb-3">
             <div class="text-center">
-                <p>&copy; 2024 Smoothie Haven. Hak Cipta Dilindungi.</p>
+                <p>&copy; 2024 Smoothie By Vie. Hak Cipta @codingin.</p>
             </div>
         </div>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.querySelectorAll('.varian-btn').forEach(button => {
             button.addEventListener('click', function() {
@@ -114,13 +115,9 @@
                 jenis: varianJenis,
                 harga: varianHarga
             };
-
-            // Hapus kelas 'active' dari semua tombol
             button.closest('.varian-options').querySelectorAll('.varian-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-
-            // Tambahkan kelas 'active' ke tombol yang dipilih
             button.classList.add('active');
         }
 

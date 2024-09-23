@@ -31,11 +31,10 @@ Route::get('/', [UserHomeController::class, 'index']);
 Route::get('/menu', [UserMenuController::class, 'index'])->name('menu');
 Route::get('/keranjang', [UserKeranjangController::class, 'index'])->name('keranjang');
 
-// Modifikasi routes untuk UserCheckoutController
+//Routes UserCheckoutController
 Route::post('/checkout/process', [UserCheckoutController::class, 'process'])->name('checkout.process');
-Route::post('/checkout/notification', [UserCheckoutController::class, 'notification'])->name('checkout.notification');
-Route::post('/checkout/finish', [UserCheckoutController::class, 'finish'])->name('checkout.finish');
-Route::get('/checkout/status/{orderId}', [UserCheckoutController::class, 'getStatus'])->name('checkout.status');
+Route::post('/checkout/callback', [UserCheckoutController::class, 'callback'])->name('checkout.callback');
+Route::get('/checkout/check-status', [UserCheckoutController::class, 'checkStatus'])->name('checkout.checkStatus');
 
 Route::get('/riwayat', [UserRiwayatController::class, 'index'])->name('riwayat');
 

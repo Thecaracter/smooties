@@ -42,9 +42,15 @@
                     </tfoot>
                 </table>
             </div>
-            <div class="text-end mt-3">
-                <button id="payButton" class="btn btn-primary">Lanjutkan ke Pembayaran</button>
-            </div>
+            @if (Auth::check())
+                <div class="text-end mt-3">
+                    <button id="checkoutButton" class="btn btn-primary">Lanjutkan ke Pembayaran</button>
+                </div>
+            @else
+                <div class="text-end mt-3">
+                    <button id="loginButton" class="btn btn-primary">Login untuk Melanjutkan</button>
+                </div>
+            @endif
             <div id="map" style="height: 400px; margin-top: 20px;"></div>
             <div class="mt-3 d-flex justify-content-start gap-2">
                 <button onclick="toggleAddressSearch()" class="btn btn-primary">Cari Alamat</button>
@@ -78,5 +84,6 @@
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}">
     </script>
+
     <script src="{{ asset('landing/js/keranjang.js') }}"></script>
 @endsection

@@ -351,31 +351,91 @@ function processCheckout() {
 }
 
 function handlePaymentResult(result, status) {
-    fetch('/checkout/finish', {
-        method: 'POST',
+    // Instead of sending to '/checkout/finish', we'll check the status directly
+    checkOrderStatus(result.order_id, status);
+}
+
+function checkOrderStatus(orderId, paymentStatus) {
+    fetch(`/checkout/check-status?order_id=${orderId}`, {
+        method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({
-            order_id: result.order_id,
-            status: status
-        })
+        }
     })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
-                localStorage.removeItem('cart');
+                let message = `Status pesanan: ${data.order_status}. `;
+                switch (paymentStatus) {
+                    case 'success':
+                        message += 'Pembayaran berhasil. ';
+                        break;
+                    case 'pending':
+                        message += 'Pembayaran Anda sedang diproses. ';
+                        break;
+                    case 'error':
+                        message += 'Terjadi kesalahan dalam proses pembayaran. ';
+                        break;
+                }
+                message += data.message;
+                alert(message);
+
+                if (data.order_status === 'dibayar') {
+                    localStorage.removeItem('cart');
+                }
                 window.location.href = '/riwayat';
             } else {
-                alert('Terjadi kesalahan. Silakan cek status pesanan Anda.');
+                alert('Gagal memeriksa status pesanan. Silakan cek halaman riwayat untuk informasi terbaru.');
                 window.location.href = '/riwayat';
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Terjadi kesalahan. Silakan cek status pesanan Anda di halaman riwayat.');
+            alert('Terjadi kesalahan jaringan. Silakan cek status pesanan Anda di halaman riwayat.');
             window.location.href = '/riwayat';
         });
 }
+
+// You may want to add a function to periodically check the order status
+function startCheckingOrderStatus(orderId) {
+    const checkInterval = setInterval(() => {
+        checkOrderStatus(orderId);
+    }, 5000); // Check every 5 seconds
+
+    // Stop checking after 2 minutes (24 * 5 seconds)
+    setTimeout(() => {
+        clearInterval(checkInterval);
+    }, 120000);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const loginButton = document.getElementById('loginButton');
+    const loginRoute = "/login";
+
+    if (loginButton) {
+        loginButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Login Diperlukan',
+                text: 'Anda perlu login untuk melanjutkan ke pembayaran. Apakah Anda ingin login sekarang?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Login Sekarang',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = loginRoute;
+                }
+            });
+        });
+    }
+
+    const checkoutButton = document.getElementById('checkoutButton');
+    if (checkoutButton) {
+        checkoutButton.addEventListener('click', function () {
+            processCheckout();
+        });
+    }
+});
