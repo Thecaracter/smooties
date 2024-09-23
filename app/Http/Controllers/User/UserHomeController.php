@@ -19,7 +19,7 @@ class UserHomeController extends Controller
             ->select('menu.*', DB::raw('COUNT(detail_pesanan.id) as order_count'))
             ->leftJoin('jenis_menu', 'menu.id', '=', 'jenis_menu.menu_id')
             ->leftJoin('detail_pesanan', 'jenis_menu.id', '=', 'detail_pesanan.jenis_menu_id')
-            ->groupBy('menu.id', 'menu.nama', 'menu.deskripsi', 'menu.foto', 'menu.kategori_id', 'menu.created_at', 'menu.updated_at')
+            ->groupBy('menu.id', 'menu.nama', 'menu.deskripsi', 'menu.foto', 'menu.kategori_id', 'menu.created_at', 'menu.updated_at', 'menu.aktif')
             ->orderBy('order_count', 'desc')
             ->take(3)
             ->get();
