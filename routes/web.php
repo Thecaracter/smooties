@@ -7,8 +7,10 @@ use App\Http\Controllers\User\UserMenuController;
 use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\User\UserRiwayatController;
+use App\Http\Controllers\User\UserCheckoutController;
 use App\Http\Controllers\Admin\AdminPesananController;
 use App\Http\Controllers\Admin\AdminRiwayatController;
+use App\Http\Controllers\User\UserKeranjangController;
 use App\Http\Controllers\Admin\AdminDashboarController;
 use App\Http\Controllers\Admin\AdminKategoriController;
 use App\Http\Controllers\Admin\AdminJenisMenuController;
@@ -27,9 +29,14 @@ use App\Http\Controllers\Admin\AdminJenisMenuController;
 Route::get('/', [UserHomeController::class, 'index']);
 
 Route::get('/menu', [UserMenuController::class, 'index'])->name('menu');
-Route::get('/keranjang', function () {
-    return view('landing.keranjang');
-})->name('keranjang');
+Route::get('/keranjang', [UserKeranjangController::class, 'index'])->name('keranjang');
+
+// Modifikasi routes untuk UserCheckoutController
+Route::post('/checkout/process', [UserCheckoutController::class, 'process'])->name('checkout.process');
+Route::post('/checkout/notification', [UserCheckoutController::class, 'notification'])->name('checkout.notification');
+Route::post('/checkout/finish', [UserCheckoutController::class, 'finish'])->name('checkout.finish');
+Route::get('/checkout/status/{orderId}', [UserCheckoutController::class, 'getStatus'])->name('checkout.status');
+
 Route::get('/riwayat', [UserRiwayatController::class, 'index'])->name('riwayat');
 
 //Auth Routes
@@ -39,7 +46,7 @@ Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('
 Route::post('/register', [AuthController::class, 'register'])->name('auth-register');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware('check.admin')->group(function () {
     //Dashboard Routes
     Route::get('/dashboard', [AdminDashboarController::class, 'index'])->name('dashboard');
     Route::get('dashboard/monthly-statistics', [AdminDashboarController::class, 'getMonthlyStatistics']);
