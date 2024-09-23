@@ -146,7 +146,6 @@
             alert('Item berhasil ditambahkan ke keranjang!');
             updateCartBadge();
 
-            // Reset selectedVariant setelah menambahkan ke keranjang
             selectedVariant = {
                 jenis: '',
                 harga: 0
@@ -162,7 +161,6 @@
             }
         }
 
-        // Panggil fungsi ini saat halaman dimuat
         document.addEventListener('DOMContentLoaded', updateCartBadge);
     </script>
     @yield('scripts')

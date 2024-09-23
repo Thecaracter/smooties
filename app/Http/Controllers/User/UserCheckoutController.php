@@ -7,6 +7,7 @@ use Midtrans\Config;
 use App\Models\Pesanan;
 use Illuminate\Http\Request;
 use App\Models\DetailPesanan;
+use App\Models\JenisMenu;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -36,6 +37,14 @@ class UserCheckoutController extends Controller
 
         try {
             $pesanan = DB::transaction(function () use ($request, $cart, $totalHarga) {
+                // Check stock availability without reducing it
+                foreach ($cart as $item) {
+                    $jenisMenu = JenisMenu::findOrFail($item['id']);
+                    if ($jenisMenu->stok < $item['quantity']) {
+                        throw new \Exception("Stok tidak mencukupi untuk " . $jenisMenu->jenis);
+                    }
+                }
+
                 $lastOrder = Pesanan::orderBy('id', 'desc')->lockForUpdate()->first();
                 $lastOrderNumber = $lastOrder ? intval(substr($lastOrder->kode_pemesanan, -4)) : 0;
                 $newOrderNumber = str_pad($lastOrderNumber + 1, 4, '0', STR_PAD_LEFT);
@@ -114,15 +123,33 @@ class UserCheckoutController extends Controller
         if ($hashed == $request->signature_key) {
             $pesanan = Pesanan::where('kode_pemesanan', $request->order_id)->first();
             if ($pesanan) {
-                $pesanan->status = $this->mapPaymentStatus($request->transaction_status);
-                if ($pesanan->status == 'dibayar') {
-                    $pesanan->waktu_dibayar = now();
-                } elseif ($pesanan->status == 'dibatalkan') {
+                $newStatus = $this->mapPaymentStatus($request->transaction_status);
+
+                if ($newStatus == 'dibayar' && $pesanan->status != 'dibayar') {
+                    DB::transaction(function () use ($pesanan, $newStatus, $request) {
+                        $pesanan->status = $newStatus;
+                        $pesanan->waktu_dibayar = now();
+                        $pesanan->metode_pembayaran = $this->getPaymentMethod($request->payment_type);
+                        $pesanan->id_transaksi_midtrans = $request->transaction_id;
+                        $pesanan->save();
+
+                        // Reduce stock for each item in the order
+                        foreach ($pesanan->detailPesanan as $detail) {
+                            $jenisMenu = JenisMenu::lockForUpdate()->find($detail->jenis_menu_id);
+                            if ($jenisMenu) {
+                                if ($jenisMenu->stok < $detail->jumlah) {
+                                    throw new \Exception("Stok tidak mencukupi untuk " . $jenisMenu->jenis);
+                                }
+                                $jenisMenu->stok -= $detail->jumlah;
+                                $jenisMenu->save();
+                            }
+                        }
+                    });
+                } elseif ($newStatus == 'dibatalkan') {
+                    $pesanan->status = $newStatus;
                     $pesanan->waktu_dibatalkan = now();
+                    $pesanan->save();
                 }
-                $pesanan->metode_pembayaran = $this->getPaymentMethod($request->payment_type);
-                $pesanan->id_transaksi_midtrans = $request->transaction_id;
-                $pesanan->save();
 
                 Log::info('Payment notification received', [
                     'order_id' => $request->order_id,
@@ -134,7 +161,6 @@ class UserCheckoutController extends Controller
         }
         return response()->json(['success' => false], 403);
     }
-
 
     public function checkStatus(Request $request)
     {
@@ -162,11 +188,27 @@ class UserCheckoutController extends Controller
             if ($transactionStatus !== null) {
                 $newStatus = $this->mapPaymentStatus($transactionStatus);
                 if ($pesanan->status !== $newStatus) {
-                    $pesanan->status = $newStatus;
-                    $pesanan->waktu_dibayar = $newStatus === 'dibayar' ? now() : null;
-                    $pesanan->metode_pembayaran = $paymentType ? $this->getPaymentMethod($paymentType) : null;
-                    $pesanan->id_transaksi_midtrans = $transactionId;
-                    $pesanan->save();
+                    DB::transaction(function () use ($pesanan, $newStatus, $paymentType, $transactionId) {
+                        $pesanan->status = $newStatus;
+                        $pesanan->waktu_dibayar = $newStatus === 'dibayar' ? now() : null;
+                        $pesanan->metode_pembayaran = $paymentType ? $this->getPaymentMethod($paymentType) : null;
+                        $pesanan->id_transaksi_midtrans = $transactionId;
+                        $pesanan->save();
+
+                        if ($newStatus === 'dibayar') {
+                            // Reduce stock for each item in the order
+                            foreach ($pesanan->detailPesanan as $detail) {
+                                $jenisMenu = JenisMenu::lockForUpdate()->find($detail->jenis_menu_id);
+                                if ($jenisMenu) {
+                                    if ($jenisMenu->stok < $detail->jumlah) {
+                                        throw new \Exception("Stok tidak mencukupi untuk " . $jenisMenu->jenis);
+                                    }
+                                    $jenisMenu->stok -= $detail->jumlah;
+                                    $jenisMenu->save();
+                                }
+                            }
+                        }
+                    });
                 }
             }
 
