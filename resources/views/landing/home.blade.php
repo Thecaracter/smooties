@@ -1,19 +1,56 @@
 @extends('layouts.landing')
 @section('content')
     <section id="beranda" class="hero-section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold mb-4">Rasakan Kesegaran dalam Setiap Tegukan</h1>
-                    <p class="lead mb-4">Nikmati smoothie lezat kami yang dibuat dari bahan-bahan alami terbaik untuk
-                        menyegarkan hari Anda.</p>
-                    <a href="#menu" class="btn btn-primary btn-lg">Jelajahi Menu</a>
+        <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active"
+                    style="background-image: url('https://images.unsplash.com/photo-1505252585461-04db1eb84625?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80');">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6">
+                                <h1 class="display-4 fw-bold mb-4">Selamat Datang di Smootie by Vie</h1>
+                                <p class="lead mb-4">Nikmati smoothie lezat kami yang dibuat dari bahan-bahan alami terbaik
+                                    untuk menyegarkan hari Anda.</p>
+                                <a href="#menu" class="btn btn-primary btn-lg">Jelajahi Menu</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-lg-6">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='300' viewBox='0 0 500 300'%3E%3Crect width='500' height='300' fill='%23c5cae9' fill-opacity='0.5'/%3E%3Ccircle cx='250' cy='150' r='100' fill='%233949ab' fill-opacity='0.8'/%3E%3Cpath d='M200 200 Q 250 100 300 200 L 300 250 Q 250 300 200 250 Z' fill='%231a237e' fill-opacity='0.9'/%3E%3Cpath d='M180 170 Q 250 50 320 170' stroke='white' stroke-width='8' fill='none'/%3E%3C/svg%3E"
-                        alt="Smoothie Illustration" class="img-fluid rounded shadow">
+                <div class="carousel-item"
+                    style="background-image: url('https://images.unsplash.com/photo-1614204424926-196a80bf0be8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80');">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6 ms-auto">
+                                <h1 class="display-4 fw-bold mb-4">Rasakan Kesegaran Alami</h1>
+                                <p class="lead mb-4">Setiap tegukan smoothie kami penuh dengan nutrisi dan cita rasa yang
+                                    memanjakan lidah Anda.</p>
+                                <a href="#tentang" class="btn btn-primary btn-lg">Tentang Kami</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item"
+                    style="background-image: url('https://images.unsplash.com/photo-1605870445919-838d190e8e1b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80');">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6">
+                                <h1 class="display-4 fw-bold mb-4">Hidupkan Gaya Hidup Sehat</h1>
+                                <p class="lead mb-4">Temukan berbagai pilihan smoothie yang tidak hanya lezat, tapi juga
+                                    mendukung kesehatan Anda.</p>
+                                <a href="#menu" class="btn btn-primary btn-lg">Lihat Menu</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
         </div>
     </section>
 
@@ -22,11 +59,14 @@
             <h2 class="text-center section-title">Tentang Kami</h2>
             <div class="row align-items-center">
                 <div class="col-lg-6 mb-4 mb-lg-0">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='300' viewBox='0 0 500 300'%3E%3Crect width='500' height='300' fill='%23e8eaf6'/%3E%3Ccircle cx='150' cy='150' r='100' fill='%233949ab' fill-opacity='0.8'/%3E%3Ccircle cx='350' cy='150' r='100' fill='%231a237e' fill-opacity='0.9'/%3E%3Cpath d='M150 150 L 350 150' stroke='white' stroke-width='8' fill='none'/%3E%3C/svg%3E"
-                        alt="About Smootie by Vie" class="img-fluid about-image">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.9721704796207!2d106.7329903!3d-6.397587799999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69e90052319d61%3A0x98040e750b8202e6!2ssmoothies%20vie!5e0!3m2!1sen!2sid!4v1727179484166!5m2!1sen!2sid"
+                        width="90%" height="300" style="border:0;" allowfullscreen="" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade" class="about-image rounded">
+                    </iframe>
                 </div>
                 <div class="col-lg-6">
-                    <h3>Selamat Datang di Smootie by Vie</h3>
+                    <h3>Rasakan Kesegaran dalam Setiap Tegukan</h3>
                     <p>Kami adalah perusahaan yang berdedikasi untuk menyajikan smoothie berkualitas tinggi dengan
                         bahan-bahan segar dan alami. Didirikan pada tahun 2020, Smootie by Vie telah menjadi tujuan
                         utama bagi pecinta smoothie di seluruh kota.</p>

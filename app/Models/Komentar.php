@@ -13,6 +13,7 @@ class Komentar extends Model
     protected $fillable = [
         'user_id',
         'menu_id',
+        'pesanan_id',
         'isi_komentar',
         'rating',
     ];
@@ -25,5 +26,9 @@ class Komentar extends Model
     public function menu()
     {
         return $this->belongsTo(Menu::class);
+    }
+    public function pesanan()
+    {
+        return $this->belongsTo(Pesanan::class);
     }
 }

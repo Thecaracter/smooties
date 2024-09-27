@@ -4,9 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Menu;
 use App\Models\User;
+use App\Models\Pesanan;
+use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Faker\Factory as Faker;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class KomentarSeeder extends Seeder
@@ -21,12 +22,14 @@ class KomentarSeeder extends Seeder
         // Ambil semua ID user dan menu yang ada
         $userIds = User::pluck('id')->toArray();
         $menuIds = Menu::pluck('id')->toArray();
+        $pesananIds = Pesanan::pluck('id')->toArray();
 
         // Buat 50 komentar acak
         for ($i = 0; $i < 10; $i++) {
             DB::table('komentar')->insert([
                 'user_id' => $faker->randomElement($userIds),
                 'menu_id' => $faker->randomElement($menuIds),
+                'pesanan_id' => $faker->randomElement($pesananIds),
                 'isi_komentar' => $faker->paragraph(),
                 'rating' => $faker->numberBetween(1, 5),
                 'created_at' => $faker->dateTimeBetween('-1 year', 'now'),

@@ -37,6 +37,7 @@ Route::post('/checkout/callback', [UserCheckoutController::class, 'callback'])->
 Route::get('/checkout/check-status', [UserCheckoutController::class, 'checkStatus'])->name('checkout.checkStatus');
 
 Route::get('/riwayat', [UserRiwayatController::class, 'index'])->name('riwayat');
+Route::post('/riwayat/comment/{id}', [UserRiwayatController::class, 'comment'])->name('user.riwayat.comment');
 
 //Auth Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

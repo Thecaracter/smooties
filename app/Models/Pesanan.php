@@ -42,7 +42,12 @@ class Pesanan extends Model
     {
         return $this->hasMany(DetailPesanan::class);
     }
+    public function komentar()
+    {
+        return $this->hasMany(Komentar::class);
+    }
     protected $dispatchesEvents = [
         'updated' => PesananUpdated::class,
     ];
+
 }

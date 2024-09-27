@@ -17,9 +17,9 @@ class DatabaseSeeder extends Seeder
             MenuSeeder::class,
             JenisMenuSeeder::class,
             UserSeeder::class,
-            KomentarSeeder::class,
             PesananSeeder::class,
             DetailPesananSeeder::class,
+            KomentarSeeder::class,
         ]);
     }
 }

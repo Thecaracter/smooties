@@ -48,7 +48,7 @@ class UserCheckoutController extends Controller
                 $lastOrder = Pesanan::orderBy('id', 'desc')->lockForUpdate()->first();
                 $lastOrderNumber = $lastOrder ? intval(substr($lastOrder->kode_pemesanan, -4)) : 0;
                 $newOrderNumber = str_pad($lastOrderNumber + 1, 4, '0', STR_PAD_LEFT);
-                $kodePemesanan = 'ORDPesanan-' . $newOrderNumber;
+                $kodePemesanan = 'ORD1e91hiqy-' . $newOrderNumber;
 
                 $pesanan = new Pesanan();
                 $pesanan->user_id = auth()->id();
@@ -105,6 +105,10 @@ class UserCheckoutController extends Controller
             ];
 
             $snapToken = Snap::getSnapToken($params);
+
+            // Save the snap token in id_transaksi_midtrans
+            $pesanan->id_transaksi_midtrans = $snapToken;
+            $pesanan->save();
 
             return response()->json([
                 'snap_token' => $snapToken,
