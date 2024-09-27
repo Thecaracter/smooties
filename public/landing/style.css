@@ -260,46 +260,23 @@ body {
     animation: fadeInUp 1s ease-out;
 }
 
-/* Updated Carousel Control Styles */
 .carousel-control-prev,
 .carousel-control-next {
     z-index: 5;
-    width: 50px;
-    height: 50px;
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    top: 50%;
-    transform: translateY(-50%);
+    width: 10%;
     opacity: 0.7;
     transition: all 0.3s ease;
 }
 
-.carousel-control-prev {
-    left: 20px;
-}
-
-.carousel-control-next {
-    right: 20px;
-}
-
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-    background-color: rgba(255, 255, 255, 0.5);
     opacity: 1;
 }
 
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
-    width: 20px;
-    height: 20px;
-}
-
-.carousel-control-prev-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 8 8'%3e%3cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3e%3c/svg%3e");
-}
-
-.carousel-control-next-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 8 8'%3e%3cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3e%3c/svg%3e");
+    width: 3rem;
+    height: 3rem;
 }
 
 /* Section Styles */
@@ -355,7 +332,7 @@ body {
 
 .category-title {
     text-align: center;
-    color: var(--primary-color);
+    color: var(--secondary-color);
     font-size: 1.2rem;
     margin-bottom: 0;
     position: relative;
@@ -506,3 +483,34 @@ body {
     .navbar-nav .dropdown-menu {
         background: transparent;
         border: none;
+        box-shadow: none;
+    }
+
+    .navbar-nav .dropdown-item {
+        color: var(--light-color);
+    }
+
+    .navbar-nav .dropdown-item:hover,
+    .navbar-nav .dropdown-item:focus {
+        background-color: transparent;
+        color: white;
+    }
+
+    .carousel-item {
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .carousel-item .row {
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+
+    .carousel-item h1 {
+        font-size: 2.5rem;
+    }
+
+    .carousel-item p {
+        font-size: 1.1rem;
+    }
+}
