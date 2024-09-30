@@ -33,8 +33,19 @@
                                         <button class="btn btn-sm btn-info" data-bs-toggle="modal"
                                             data-bs-target="#detailModal{{ $p->id }}">Detail</button>
                                         @if ($p->status === 'selesai')
-                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                                data-bs-target="#commentModal{{ $p->id }}">Beri Penilaian</button>
+                                            @php
+                                                $allCommented = $p->detailPesanan->every(function ($detail) use ($p) {
+                                                    return $p->komentar
+                                                        ->where('user_id', auth()->id())
+                                                        ->where('menu_id', $detail->jenisMenu->menu->id)
+                                                        ->count() > 0;
+                                                });
+                                            @endphp
+                                            @if (!$allCommented)
+                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#commentModal{{ $p->id }}">Beri
+                                                    Penilaian</button>
+                                            @endif
                                         @endif
                                     </td>
                                 </tr>
@@ -108,6 +119,9 @@
                                     <form action="{{ route('user.riwayat.comment', $p->id) }}" method="POST">
                                         @csrf
                                         <div class="modal-body">
+                                            @php
+                                                $anyUncommentedMenu = false;
+                                            @endphp
                                             @foreach ($p->detailPesanan as $detail)
                                                 @php
                                                     $menu = $detail->jenisMenu->menu;
@@ -117,6 +131,9 @@
                                                         ->first();
                                                 @endphp
                                                 @if (!$existingComment)
+                                                    @php
+                                                        $anyUncommentedMenu = true;
+                                                    @endphp
                                                     <div class="mb-3">
                                                         <label class="form-label">{{ $menu->nama }}</label>
                                                         <div class="star-rating" data-menu-id="{{ $menu->id }}">
@@ -130,16 +147,22 @@
                                                     </div>
                                                 @endif
                                             @endforeach
-                                            <input type="hidden" name="menu_id" id="selected_menu_id">
-                                            <div class="mb-3">
-                                                <label for="isi_komentar" class="form-label">Komentar</label>
-                                                <textarea class="form-control" id="isi_komentar" name="isi_komentar" rows="3" required></textarea>
-                                            </div>
+                                            @if ($anyUncommentedMenu)
+                                                <input type="hidden" name="menu_id" id="selected_menu_id">
+                                                <div class="mb-3">
+                                                    <label for="isi_komentar" class="form-label">Komentar</label>
+                                                    <textarea class="form-control" id="isi_komentar" name="isi_komentar" rows="3" required></textarea>
+                                                </div>
+                                            @else
+                                                <p>Anda sudah memberikan penilaian untuk semua menu dalam pesanan ini.</p>
+                                            @endif
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
                                                 data-bs-dismiss="modal">Tutup</button>
-                                            <button type="submit" class="btn btn-primary">Kirim Penilaian</button>
+                                            @if ($anyUncommentedMenu)
+                                                <button type="submit" class="btn btn-primary">Kirim Penilaian</button>
+                                            @endif
                                         </div>
                                     </form>
                                 </div>

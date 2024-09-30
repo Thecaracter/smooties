@@ -15,11 +15,11 @@ class MenuController extends Controller
         $allMenus = Menu::with(['kategori', 'jenisMenu', 'komentar.user'])->get();
 
         foreach ($allMenus as $menu) {
-            // Ambil 2 komentar terbaru untuk setiap menu
+
             $menu->recent_comments = $menu->komentar()
                 ->with('user:id,username')
                 ->latest()
-                ->take(2) // Ambil 2 komentar terbaru
+                ->take(2)
                 ->get();
         }
 

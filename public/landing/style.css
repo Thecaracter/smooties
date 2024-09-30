@@ -1,6 +1,6 @@
 :root {
     --primary-color: rgb(219, 192, 43);
-    --secondary-color: #3949ab;
+    --secondary-color: black;
     --accent-color: #7986cb;
     --light-color: #c5cae9;
     --gradient: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
