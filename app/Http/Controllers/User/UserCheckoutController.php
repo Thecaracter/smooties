@@ -37,11 +37,32 @@ class UserCheckoutController extends Controller
 
         try {
             $pesanan = DB::transaction(function () use ($request, $cart, $totalHarga) {
+                // Tambahkan logging untuk cart items
+                Log::info('Cart Items:', $cart);
+
                 // Check stock availability without reducing it
                 foreach ($cart as $item) {
-                    $jenisMenu = JenisMenu::findOrFail($item['id']);
-                    if ($jenisMenu->stok < $item['quantity']) {
-                        throw new \Exception("Stok tidak mencukupi untuk " . $jenisMenu->jenis);
+                    try {
+                        // Tambahkan pengecekan detail item sebelum findOrFail
+                        Log::info('Checking item:', $item);
+
+                        $jenisMenu = JenisMenu::find($item['id']);
+
+                        // Ganti findOrFail dengan find dan tambahkan pengecekan
+                        if (!$jenisMenu) {
+                            Log::error('Menu item not found', [
+                                'item_id' => $item['id'],
+                                'item_details' => $item
+                            ]);
+                            throw new \Exception("Menu item dengan ID " . $item['id'] . " tidak ditemukan");
+                        }
+
+                        if ($jenisMenu->stok < $item['quantity']) {
+                            throw new \Exception("Stok tidak mencukupi untuk " . $jenisMenu->jenis);
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Stock check error: ' . $e->getMessage(), ['item' => $item]);
+                        throw $e;
                     }
                 }
 
@@ -115,7 +136,11 @@ class UserCheckoutController extends Controller
                 'order_id' => $pesanan->kode_pemesanan
             ]);
         } catch (\Exception $e) {
-            Log::error('Checkout process error: ' . $e->getMessage());
+            Log::error('Checkout process error: ' . $e->getMessage(), [
+                'cart' => $cart,
+                'total_harga' => $totalHarga,
+                'error_trace' => $e->getTraceAsString()
+            ]);
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
